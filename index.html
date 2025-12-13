@@ -1,4 +1,185 @@
-   <script>
-   
-window.location.href = fetch("やあ");
- </script>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SECURE MILITARY TERMINAL</title>
+  <style>
+    :root {
+      --bg: #030a05;
+      --fg: #33ff99;
+      --fg-dim: #1fa36b;
+      --alert: #ff3b3b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Courier New", monospace;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* CRT風 */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.03),
+        rgba(255,255,255,0.03) 1px,
+        rgba(0,0,0,0) 2px,
+        rgba(0,0,0,0) 4px
+      );
+      pointer-events: none;
+    }
+
+    .terminal {
+      padding: 16px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .header {
+      border: 1px solid var(--fg-dim);
+      padding: 8px;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+
+    .status {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .panel {
+      border: 1px solid var(--fg-dim);
+      padding: 8px;
+    }
+
+    .panel.alert {
+      border-color: var(--alert);
+      color: var(--alert);
+    }
+
+    .log {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid var(--fg-dim);
+      padding: 8px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .input-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .prompt {
+      color: var(--fg-dim);
+    }
+
+    input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--fg);
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .blink {
+      animation: blink 1s steps(2, start) infinite;
+    }
+
+    @keyframes blink {
+      to { visibility: hidden; }
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal">
+    <div class="header">
+      TOP SECRET // MIL-OPS TERMINAL
+    </div>
+
+    <div class="status">
+      <div class="panel">SYS: ONLINE</div>
+      <div class="panel">LINK: ENCRYPTED</div>
+      <div class="panel alert">THREAT: ELEVATED</div>
+    </div>
+
+    <div id="log" class="log"></div>
+
+    <div class="input-line">
+      <span class="prompt">&gt;&gt;&gt;</span>
+      <input id="cmd" type="text" autocomplete="off" autofocus />
+      <span class="blink">█</span>
+    </div>
+  </div>
+
+  <script>
+    const log = document.getElementById('log');
+    const cmd = document.getElementById('cmd');
+
+    const commands = {
+      help() {
+        write('AVAILABLE COMMANDS:');
+        write('- help');
+        write('- status');
+        write('- clear');
+        write('- go-home');
+      },
+      status() {
+        write('SYSTEM STATUS:');
+        write('CPU LOAD: 78%');
+        write('MEMORY: STABLE');
+        write('ALL UNITS STANDING BY');
+      },
+      clear() {
+        log.innerHTML = '';
+      },
+      'go-home'() {
+        write('REDIRECTING TO BASE...');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 800);
+      }
+    };
+
+    function write(text) {
+      const line = document.createElement('div');
+      line.textContent = text;
+      log.appendChild(line);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    write('ACCESS GRANTED.');
+    write('TYPE "help" FOR COMMAND LIST.');
+
+    cmd.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        const value = cmd.value.trim();
+        write('> ' + value);
+        if (commands[value]) {
+          commands[value]();
+        } else if (value !== '') {
+          write('UNKNOWN COMMAND.');
+        }
+        cmd.value = '';
+      }
+    });
+  </script>
+</body>
+</html>
